@@ -126,7 +126,6 @@
     ]
   },
   "workspaces": [
-    "packages/databyss-dashboard/*",
     "packages/*"
   ],
   "dependencies": {
