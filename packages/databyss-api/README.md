@@ -13,11 +13,12 @@ add uri of your mongodb connection for example
 
 ```
 
-```bash
-# Install server dependencies
-npm install
+### Install server dependencies
+```npm install```
 
 
-# Run Express server
-npm run dev
+### Run Express server
+```npm run dev```
 
+### Run Test
+```npm test```
