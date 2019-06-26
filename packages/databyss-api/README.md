@@ -1,7 +1,7 @@
 ## Quick Start
 
 
-### change default.json file in config folder
+### add default.json and test.json file in config folder
 
 this file is located in config/default.json
 add uri of your mongodb connection for example
