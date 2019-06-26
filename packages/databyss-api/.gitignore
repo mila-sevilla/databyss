@@ -1,0 +1,8 @@
+node_modules/
+config/default.json
+config/production.json
+config/production.json
+config/test
+yarn.lock
+.DS_Store
+.env
