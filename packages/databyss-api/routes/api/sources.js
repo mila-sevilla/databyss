@@ -9,33 +9,82 @@ const auth = require('../../middleware/auth')
 // @desc     Add Source
 // @access   Private
 router.post('/', auth, async (req, res) => {
-  try {
-    /*
+  /*
       INSERT ERROR HANDLER HERE
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
 */
-    const {
-      title,
-      authors,
-      year,
-      city,
-      publishingCompany,
-      sourceType,
-      url,
-      files,
-      entries,
-      date,
-      resource,
-    } = req.body
+  const {
+    title,
+    authors,
+    abbreviation,
+    city,
+    publishingCompany,
+    sourceType,
+    url,
+    files,
+    entries,
+    date,
+    resource,
+    authorFirstName,
+    authorLastName,
+    _id,
+  } = req.body
+
+  let authorPost = {}
+
+  // if new author add new author and retrive ID
+  if (authorFirstName || authorLastName) {
+    const author = new Author({
+      firstName: authorFirstName,
+      lastName: authorLastName,
+      user: req.user.id,
+    })
+    authorPost = await author.save()
+    authors.push(authorPost._id.toString())
+  }
+
+  const sourceFields = {
+    title,
+    authors,
+    abbreviation,
+    city,
+    publishingCompany,
+    sourceType,
+    url,
+    files,
+    entries,
+    date,
+    resource,
+    user: req.user.id,
+  }
+
+  try {
+    let source = await Source.findOne({ _id: _id })
+    if (source) {
+      sourceFields._id = _id
+      source = await Source.findOneAndUpdate(
+        { _id: _id },
+        { $set: sourceFields }
+      )
+      // If new author has been added
+      if (authorPost) {
+        appendToList({
+          authors: authors,
+          sourceId: _id.toString(),
+        })
+      }
+
+      return res.json(source)
+    }
 
     // Do parsing here
     const sources = new Source({
       title,
       authors,
-      year,
+      abbreviation,
       city,
       publishingCompany,
       sourceType,
@@ -136,41 +185,27 @@ router.get('/', async (req, res) => {
   }
 })
 
-module.exports = router
-
-const appendToList = async ({ authors, sourceId }) => {
-  try {
-    authorId => {
-      const promises = authorId.map(async a => {
-        if (a) {
-          console.log(a)
-          let author = await Author.findOne({
-            _id: a,
-          }).catch(err => console.log(err))
-          console.log(author)
-          if (author) {
-            let newInput = author
-            let list = newInput.sources
-            if (list.indexOf(sourceId) > 0) return
-            list.push(sourceId)
-            newInput.sources = list
-            author = await Author.findOneAndUpdate(
-              { _id: a },
-              { $set: newInput },
-              { new: true }
-            ).catch(err => console.log(err))
-          }
-        }
-      })
-      return Promise.all(promises)
+const appendToList = ({ authors, sourceId }) => {
+  const promises = authors.map(async a => {
+    if (a) {
+      let author = await Author.findOne({
+        _id: a,
+      }).catch(err => console.log(err))
+      if (author) {
+        let newInput = author
+        let list = newInput.sources
+        if (list.indexOf(sourceId) > -1) return
+        list.push(sourceId)
+        newInput.sources = list
+        author = await Author.findOneAndUpdate(
+          { _id: a },
+          { $set: newInput },
+          { new: true }
+        ).catch(err => console.log(err))
+      }
     }
-    /*
-    addToAuthor(authors).then(resolve => {
-      resolve('')
-    })
-
-    */
-  } catch (err) {
-    console.log(err)
-  }
+  })
+  return Promise.all(promises)
 }
+
+module.exports = router

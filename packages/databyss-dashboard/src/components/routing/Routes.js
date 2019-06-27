@@ -16,34 +16,39 @@ import Entry from '../entries/Entry'
 
 import Authors from '../authors/Authors'
 import Author from '../authors/Author'
+import EditAuthor from '../authors/EditAuthor'
 
 import Sources from '../sources/Sources'
 import Source from '../sources/Source'
+import EditSource from '../sources/EditSource'
 
 import NotFound from '../layout/NotFound'
 import PrivateRoute from '../routing/PrivateRoute'
 
 const Routes = () => {
   return (
-    <section className='container'>
+    <section className="container">
       <Alert />
       <Switch>
-        <Route exact path='/register' component={Register} />
-        <Route exact path='/login' component={Login} />
-        <Route exact path='/profiles' component={Profiles} />
-        <Route exact path='/profile/:id' component={Profile} />
-        <PrivateRoute exact path='/dashboard' component={Dashboard} />
-        <PrivateRoute exact path='/create-profile' component={CreateProfile} />
-        <PrivateRoute exact path='/edit-profile' component={EditProfile} />
+        <Route exact path="/register" component={Register} />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/profiles" component={Profiles} />
+        <Route exact path="/profile/:id" component={Profile} />
+        <PrivateRoute exact path="/dashboard" component={Dashboard} />
+        <PrivateRoute exact path="/create-profile" component={CreateProfile} />
+        <PrivateRoute exact path="/edit-profile" component={EditProfile} />
 
-        <PrivateRoute exact path='/entries' component={Entries} />
+        <PrivateRoute exact path="/entries" component={Entries} />
 
-        <PrivateRoute exact path='/entries/:id' component={Entry} />
+        <PrivateRoute exact path="/entries/:id" component={Entry} />
 
-        <PrivateRoute exact path='/authors' component={Authors} />
-        <PrivateRoute exact path='/authors/:id' component={Author} />
-        <PrivateRoute exact path='/sources' component={Sources} />
-        <PrivateRoute exact path='/sources/:id' component={Source} />
+        <PrivateRoute exact path="/authors" component={Authors} />
+        <PrivateRoute exact path="/authors/:id" component={Author} />
+        <PrivateRoute exact path="/authors/edit/:id" component={EditAuthor} />
+
+        <PrivateRoute exact path="/sources" component={Sources} />
+        <PrivateRoute exact path="/sources/:id" component={Source} />
+        <PrivateRoute exact path="/sources/edit/:id" component={EditSource} />
 
         <Route component={NotFound} />
       </Switch>

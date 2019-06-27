@@ -38,6 +38,13 @@ export const getSources = () => async dispatch => {
   }
 }
 
+export const clearSource = () => dispatch => {
+  dispatch({
+    type: GET_SOURCE,
+    payload: null,
+  })
+}
+
 // Delete post
 export const deleteSource = id => async dispatch => {
   try {

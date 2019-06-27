@@ -7,10 +7,9 @@ const auth = require('../../middleware/auth')
 
 // @route    POST api/authors
 // @desc     Adds author
-// @access   Public
+// @access   Private
 router.post('/', auth, async (req, res) => {
-  try {
-    /*
+  /*
       INSERT ERROR HANDLER HERE
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -18,8 +17,27 @@ router.post('/', auth, async (req, res) => {
     }
 
 */
-    const { firstName, lastName, entries, sources } = req.body
-    const author = new Author({
+  const { firstName, lastName, _id, entries, sources } = req.body
+
+  const authFields = {
+    firstName,
+    lastName,
+    entries,
+    sources,
+    user: req.user.id,
+  }
+
+  // Updated if author already exists
+  try {
+    let author = await Author.findOne({ _id: _id })
+    if (author) {
+      authFields._id = _id
+      author = await Author.findOneAndUpdate({ _id: _id }, { $set: authFields })
+
+      return res.json(author)
+    }
+
+    author = new Author({
       firstName,
       lastName,
       entries,

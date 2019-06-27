@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { addSource } from '../../actions/source'
+import useReactRouter from 'use-react-router'
 import { getAuthors, addAuthor, clearAuthor } from '../../actions/author'
+import { addSource, getSource, clearSource } from '../../actions/source'
 
 const clearForm = {
   resource: '',
@@ -14,8 +15,7 @@ const clearForm = {
   url: '',
   files: '',
   entries: [],
-  authorFirstName: '',
-  authorLastName: '',
+  _id: '',
 }
 
 const AuthorButton = ({ match, hanldeClick }) => (
@@ -29,20 +29,19 @@ const AuthorButton = ({ match, hanldeClick }) => (
   </button>
 )
 
-const SourceForm = () => {
+const EditSource = ({ match }) => {
   const dispatch = useDispatch()
-
+  const { history } = useReactRouter()
   useEffect(
     () => {
-      setFormData({ ...clearForm, authors: [] })
+      dispatch(getSource(match.params.id))
       dispatch(getAuthors())
       return () => {
-        setFormData(clearForm)
         dispatch(clearAuthor())
-        setAuthorList([])
+        dispatch(clearSource())
       }
     },
-    [dispatch]
+    [dispatch, match.params.id]
   )
 
   const { source, loading } = useSelector(state => state.source)
@@ -165,6 +164,13 @@ const SourceForm = () => {
     [authorList, formData]
   )
 
+  const addAuthors = () => {
+    dispatch(
+      addAuthor({ firstName: authorFirstName, lastName: authorLastName })
+    )
+    setFormData({ ...formData, authorFirstName: '', authorLastName: '' })
+  }
+
   const onChange = e => {
     if (e.target.name === 'authors') {
       let list = authors
@@ -176,14 +182,9 @@ const SourceForm = () => {
   }
 
   const onSubmit = e => {
+    e.preventDefault()
     dispatch(addSource(formData))
-    setFormData({ ...clearForm, authors: [] })
-  }
-
-  const addAuthors = () => {
-    let authorForm = { firstName: authorFirstName, lastName: authorLastName }
-    dispatch(addAuthor(authorForm))
-    setFormData({ ...formData, authorFirstName: '', authorLastName: '' })
+    history.push(`/sources/${_id}`)
   }
 
   return (
@@ -202,7 +203,7 @@ const SourceForm = () => {
         <div className="form-group">
           <div className="m-1">
             {renderList.dropdown && (
-              <select name="authors" onChange={e => onChange(e)}>
+              <select name="authors" value="0" onChange={e => onChange(e)}>
                 <option value="0">* Select Author(s)</option>
                 {renderList.dropdown}
               </select>
@@ -240,7 +241,7 @@ const SourceForm = () => {
             value={authorLastName}
             onChange={e => onChange(e)}
           />
-          <small className="form-text">last name</small>
+          <small className="form-text">enter last name</small>
         </div>
         <button
           type="button"
@@ -336,4 +337,4 @@ const SourceForm = () => {
   )
 }
 
-export default SourceForm
+export default EditSource

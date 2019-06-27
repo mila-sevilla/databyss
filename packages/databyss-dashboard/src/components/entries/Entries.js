@@ -7,24 +7,28 @@ import EntryForm from './EntryForm'
 import { getEntries } from '../../actions/entry'
 
 const Entries = ({ getEntries, entry: { entries, loading } }) => {
-  useEffect(() => {
-    getEntries()
-  }, [getEntries])
+  useEffect(
+    () => {
+      getEntries()
+      return () => {
+        getEntries()
+      }
+    },
+    [getEntries]
+  )
 
   return loading ? (
     <Spinner />
   ) : (
     <Fragment>
-      <h1 className='large text-primary'>Entries</h1>
-      <p className='lead'>
-        <i className='fas fa-user' /> write a new entry
+      <h1 className="large text-primary">Entries</h1>
+      <p className="lead">
+        <i className="fas fa-user" /> write a new entry
       </p>
       <EntryForm />
 
-      <div className='posts'>
-        {entries.map(entry => (
-          <EntryItem key={entry._id} entry={entry} />
-        ))}
+      <div className="posts">
+        {entries.map(entry => <EntryItem key={entry._id} entry={entry} />)}
       </div>
     </Fragment>
   )

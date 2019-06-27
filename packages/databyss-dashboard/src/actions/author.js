@@ -9,7 +9,7 @@ import {
   RECEIVE_AUTHORS,
 } from './types'
 
-// Get entries
+// Get authors
 export const getAuthors = () => async dispatch => {
   try {
     dispatch({
@@ -38,7 +38,7 @@ export const getAuthors = () => async dispatch => {
   }
 }
 
-// Delete post
+// Delete author
 export const deleteAuthor = id => async dispatch => {
   try {
     await axios.delete(`/api/posts/${id}`)
@@ -57,7 +57,7 @@ export const deleteAuthor = id => async dispatch => {
   }
 }
 
-// Add post
+// Add author
 export const addAuthor = formData => async dispatch => {
   const config = {
     headers: {
@@ -65,10 +65,10 @@ export const addAuthor = formData => async dispatch => {
     },
   }
 
-  console.log(formData)
-
   try {
     const res = await axios.post('/api/authors', formData, config)
+    const id = res.data._id
+    dispatch(getAuthor(id))
 
     dispatch({
       type: ADD_AUTHOR,
@@ -100,6 +100,13 @@ export const getAuthor = id => async dispatch => {
       payload: { msg: err.response.statusText, status: err.response.status },
     })
   }
+}
+
+export const clearAuthor = () => dispatch => {
+  dispatch({
+    type: GET_AUTHOR,
+    payload: null,
+  })
 }
 
 //RETURNS A PROMISE TO GET ALL AUTHORS
