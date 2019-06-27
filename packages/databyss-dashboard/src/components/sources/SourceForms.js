@@ -90,7 +90,6 @@ const SourceForm = () => {
     url,
     authorFirstName,
     authorLastName,
-    _id,
   } = formData
 
   const [renderList, setRenderList] = useState({ dropdown: [], selected: [] })
