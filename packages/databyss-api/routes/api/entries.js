@@ -18,8 +18,30 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ errors: errors.array() })
     }
 */
-    const { pageFrom, source, author, pageTo, files, entry, index } = req.body
-    const entries = new Entry({
+    let {
+      pageFrom,
+      source,
+      author,
+      pageTo,
+      files,
+      entry,
+      index,
+      resource,
+      _id, // NEED TO ADD THIS PARAM TO FRONT END
+    } = req.body
+
+    let sourcePost
+    // If new source, create new Id
+    if (resource) {
+      const newSource = new Source({
+        resource,
+        user: req.user.id,
+      })
+      sourcePost = await newSource.save()
+      source = sourcePost._id.toString()
+    }
+
+    const entryFields = {
       pageFrom,
       source,
       author,
@@ -28,26 +50,41 @@ router.post('/', auth, async (req, res) => {
       entry,
       index,
       user: req.user.id,
-    })
+    }
 
-    const post = await entries.save()
+    // CHECK HERE FOR IF ENTRY EXISTS
+    let entryExists = await Entry.findOne({ _id: _id })
+    if (entryExists) {
+      // update entry
+      entryFields._id = _id
+      entryExists = await Entry.findOneAndUpdate(
+        { _id: _id },
+        { $set: entryFields }
+      ).then(() => {
+        // if source exists, append entry to source
+        if (source) {
+          appendEntryToSource({ sourceId: source, entryId: entryExists._id })
+        }
+        // if author exists, append entry to author
+        if (author) {
+          appendEntryToAuthors({ authors: author, entryId: entryExists._id })
+        }
+      })
+    } else {
+      // create new entry
+      const entries = new Entry(entryFields)
+      const post = await entries.save()
 
-    appendToList({
-      authors: post.author,
-      sourceId: post.source,
-      entryId: post._id,
-    })
-
-    /*
-    const author = await Author.findOne({
-      _id: post.author,
-    })
-
-    const source = await Source.findOne({
-      _id: post.source
-    })
-*/
-    res.json(post)
+      // if source exists, append entry to source
+      if (source) {
+        appendEntryToSource({ sourceId: source, entryId: post._id })
+      }
+      // if author exists, append entry to author
+      if (author) {
+        appendEntryToAuthors({ authors: author, entryId: post._id })
+      }
+      res.json(post)
+    }
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -67,7 +104,6 @@ router.get('/:id', auth, async (req, res) => {
       return res.status(400).json({ errors: errors.array() })
     }
 */
-
     const entry = await Entry.findOne({
       _id: req.params.id,
     })
@@ -99,56 +135,45 @@ router.get('/', auth, async (req, res) => {
   }
 })
 
-const appendToList = async ({ authors, entryId, sourceId }) => {
-  try {
-    const addToAuthor = authorId => {
-      const promises = authorId.map(async a => {
-        if (a) {
-          let author = await Author.findOne({
-            _id: a,
-          }).catch(err => console.log(err))
+const appendEntryToSource = async ({ sourceId, entryId }) => {
+  let source = await Source.findOne({
+    _id: sourceId,
+  }).catch(err => console.log(err))
+  if (source) {
+    let newInput = source
+    let newEntriesList = newInput.entries
+    if (newEntriesList.indexOf(entryId) > -1) return
+    newEntriesList.push(entryId)
+    newInput.entries = newEntriesList
+    source = await Source.findOneAndUpdate(
+      { _id: sourceId },
+      { $set: newInput },
+      { new: true }
+    ).catch(err => console.log(err))
+  }
+}
 
-          if (author) {
-            let newInput = author
-            let list = newInput.entries
-            if (list.indexOf(entryId) > 0) return
-            list.push(entryId)
-            newInput.entries = list
-            author = await Author.findOneAndUpdate(
-              { _id: a },
-              { $set: newInput },
-              { new: true }
-            ).catch(err => console.log(err))
-          }
-        }
-      })
-      return Promise.all(promises)
-    }
-
-    let response = addToAuthor(authors)
-
-    if (sourceId) {
-      let source = await Source.findOne({
-        _id: sourceId,
-      })
-
-      if (source) {
-        let newEntry = source
-        let entrylist = newEntry.entries
-        if (entrylist.indexOf(entryId) > 0) return
-        entrylist.push(entryId)
-        newEntry.entries = entrylist
-
-        source = await Source.findOneAndUpdate(
-          { _id: sourceId },
-          { $set: newEntry },
+const appendEntryToAuthors = ({ authors, entryId }) => {
+  const promises = authors.map(async a => {
+    if (a) {
+      let author = await Author.findOne({
+        _id: a,
+      }).catch(err => console.log(err))
+      if (author) {
+        let newInput = author
+        let list = newInput.entries
+        if (list.indexOf(entryId) > -1) return
+        list.push(entryId)
+        newInput.entries = list
+        author = await Author.findOneAndUpdate(
+          { _id: a },
+          { $set: newInput },
           { new: true }
-        )
+        ).catch(err => console.log(err))
       }
     }
-  } catch (err) {
-    console.log(err)
-  }
+  })
+  return Promise.all(promises)
 }
 
 module.exports = router

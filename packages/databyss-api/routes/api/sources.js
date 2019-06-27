@@ -35,7 +35,7 @@ router.post('/', auth, async (req, res) => {
 
   let authorPost = {}
 
-  // if new author add new author and retrive ID
+  // if new author add author and retrive ID
   if (authorFirstName || authorLastName) {
     const author = new Author({
       firstName: authorFirstName,
@@ -61,6 +61,7 @@ router.post('/', auth, async (req, res) => {
     user: req.user.id,
   }
 
+  //if source exists update it and exit
   try {
     let source = await Source.findOne({ _id: _id })
     if (source) {
@@ -68,45 +69,45 @@ router.post('/', auth, async (req, res) => {
       source = await Source.findOneAndUpdate(
         { _id: _id },
         { $set: sourceFields }
-      )
-      // If new author has been added
-      if (authorPost) {
-        appendToList({
+      ).then(() => {
+        if (authorPost) {
+          appendSourceToAuthor({
+            authors: authors,
+            sourceId: _id.toString(),
+          }).then(() => {
+            if (entries) {
+              // if entry exists append the authorID to both entry and source
+              appendEntryToAuthor({
+                entries: entries,
+                authors: authors,
+              })
+            }
+          })
+        }
+      })
+      return res.json(source)
+    } else {
+      // if new source has been added
+      const sources = new Source(sourceFields)
+      const post = await sources.save()
+
+      // if authors id exist append to source
+      if (authors.length > 0) {
+        appendSourceToAuthor({
           authors: authors,
-          sourceId: _id.toString(),
+          sourceId: post._id.toString(),
         })
       }
 
-      return res.json(source)
+      // if entry exists append the authorID to both entry and source
+      if (entries.length > 0) {
+        appendEntryToAuthor({
+          entries: entries,
+          authors: authors,
+        })
+      }
+      res.json(post)
     }
-
-    // Do parsing here
-    const sources = new Source({
-      title,
-      authors,
-      abbreviation,
-      city,
-      publishingCompany,
-      sourceType,
-      url,
-      files,
-      entries,
-      date,
-      resource,
-      user: req.user.id,
-    })
-
-    const post = await sources.save()
-
-    // if authors id exist append to length
-    if (authors.length > 0) {
-      appendToList({
-        authors: authors,
-        sourceId: post._id,
-      })
-    }
-
-    res.json(post)
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -130,7 +131,6 @@ router.get('/:id', auth, async (req, res) => {
     const sources = await Source.findOne({
       _id: req.params.id,
     })
-
     if (!sources) {
       return res.status(400).json({ msg: 'There is no source for this id' })
     }
@@ -185,7 +185,7 @@ router.get('/', async (req, res) => {
   }
 })
 
-const appendToList = ({ authors, sourceId }) => {
+const appendSourceToAuthor = ({ authors, sourceId }) => {
   const promises = authors.map(async a => {
     if (a) {
       let author = await Author.findOne({
@@ -197,6 +197,29 @@ const appendToList = ({ authors, sourceId }) => {
         if (list.indexOf(sourceId) > -1) return
         list.push(sourceId)
         newInput.sources = list
+        author = await Author.findOneAndUpdate(
+          { _id: a },
+          { $set: newInput },
+          { new: true }
+        ).catch(err => console.log(err))
+      }
+    }
+  })
+  return Promise.all(promises)
+}
+
+const appendEntryToAuthor = ({ entries, authors }) => {
+  const promises = authors.map(async a => {
+    if (a) {
+      let author = await Author.findOne({
+        _id: a,
+      }).catch(err => console.log(err))
+      if (author) {
+        let newInput = author
+        let list = newInput.entries
+        list = list.concat(entries.filter(e => list.indexOf(e) < 0))
+        // figure out how to remove duplicates
+        newInput.entries = list
         author = await Author.findOneAndUpdate(
           { _id: a },
           { $set: newInput },
