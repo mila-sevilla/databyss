@@ -31,6 +31,10 @@ router.post('/', auth, async (req, res) => {
   try {
     let author = await Author.findOne({ _id: _id })
     if (author) {
+      if (req.user.id.toString() !== author.user.toString()) {
+        return res.status(401).json({ msg: 'This post is private' })
+      }
+
       authFields._id = _id
       author = await Author.findOneAndUpdate({ _id: _id }, { $set: authFields })
 
@@ -74,6 +78,10 @@ router.get('/:id', auth, async (req, res) => {
       return res.status(400).json({ msg: 'There is no author for this id' })
     }
 
+    if (req.user.id.toString() !== author.user.toString()) {
+      return res.status(401).json({ msg: 'This post is private' })
+    }
+
     res.json(author)
   } catch (err) {
     console.error(err.message)
@@ -85,7 +93,7 @@ router.get('/:id', auth, async (req, res) => {
 // @access   private
 router.get('/', auth, async (req, res) => {
   try {
-    const author = await Author.find()
+    const author = await Author.find({ user: req.user.id })
     if (!author) {
       return res.status(400).json({ msg: 'There are no authors' })
     }

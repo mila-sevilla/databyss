@@ -65,6 +65,10 @@ router.post('/', auth, async (req, res) => {
   try {
     let source = await Source.findOne({ _id: _id })
     if (source) {
+      if (req.user.id.toString() !== source.user.toString()) {
+        return res.status(401).json({ msg: 'This post is private' })
+      }
+
       sourceFields._id = _id
       source = await Source.findOneAndUpdate(
         { _id: _id },
@@ -134,6 +138,9 @@ router.get('/:id', auth, async (req, res) => {
     if (!sources) {
       return res.status(400).json({ msg: 'There is no source for this id' })
     }
+    if (req.user.id.toString() !== sources.user.toString()) {
+      return res.status(401).json({ msg: 'This post is private' })
+    }
 
     res.json(sources)
   } catch (err) {
@@ -158,9 +165,6 @@ router.get('/', auth, async (req, res) => {
     if (!source) {
       return res.status(400).json({ msg: 'There are no sources' })
     }
-    if (!source) {
-      return res.status(400).json({ msg: 'There is no sources' })
-    }
 
     res.json(source)
   } catch (err) {
@@ -173,7 +177,7 @@ router.get('/', auth, async (req, res) => {
 // @access   public
 router.get('/', async (req, res) => {
   try {
-    const source = await Source.find()
+    const source = await Source.find({ user: req.user.id })
     if (!source) {
       return res.status(400).json({ msg: 'There are no sources' })
     }

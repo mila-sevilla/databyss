@@ -55,6 +55,10 @@ router.post('/', auth, async (req, res) => {
     // CHECK HERE FOR IF ENTRY EXISTS
     let entryExists = await Entry.findOne({ _id: _id })
     if (entryExists) {
+      if (req.user.id.toString() !== entryExists.user.toString()) {
+        return res.status(401).json({ msg: 'This post is private' })
+      }
+
       // update entry
       entryFields._id = _id
       entryExists = await Entry.findOneAndUpdate(
@@ -111,6 +115,9 @@ router.get('/:id', auth, async (req, res) => {
     if (!entry) {
       return res.status(400).json({ msg: 'There is no entry for this id' })
     }
+    if (req.user.id.toString() !== entry.user.toString()) {
+      return res.status(401).json({ msg: 'This post is private' })
+    }
 
     res.json(entry)
   } catch (err) {
@@ -123,7 +130,7 @@ router.get('/:id', auth, async (req, res) => {
 // @access   Private
 router.get('/', auth, async (req, res) => {
   try {
-    const entry = await Entry.find()
+    const entry = await Entry.find({ user: req.user.id })
     if (!entry) {
       return res.status(400).json({ msg: 'There are no entries' })
     }
