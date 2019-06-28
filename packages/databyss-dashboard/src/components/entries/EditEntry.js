@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
 import axios from 'axios'
 
-import { connect } from 'react-redux'
-import { addEntry } from '../../actions/entry'
-import { getAuthors } from '../../actions/author'
-import { getSources } from '../../actions/source'
+import { useSelector, useDispatch } from 'react-redux'
+import { addEntry, getEntry, clearEntry } from '../../actions/entry'
+import { getAuthors, clearAuthor } from '../../actions/author'
+import { getSources, clearSource } from '../../actions/source'
 
 const clearForm = {
-  author: '',
+  author: [],
   source: '',
   pageFrom: '',
   pageTo: '',
@@ -17,28 +16,55 @@ const clearForm = {
   index: 0,
   document: '',
   resource: '',
+  _id: '',
 }
 
-const EntryForm = ({
-  addEntry,
-  getAuthors,
-  author: { authors, loading },
-  getSources,
-  source: { sources },
-}) => {
+const EditEntry = ({ match }) => {
+  const dispatch = useDispatch()
   useEffect(
     () => {
-      getAuthors()
-      getSources()
+      dispatch(getEntry(match.params.id))
+      dispatch(getAuthors())
+      dispatch(getSources())
+      return () => {
+        dispatch(clearEntry())
+        dispatch(clearAuthor())
+        dispatch(clearSource())
+      }
     },
-    [getAuthors, getSources]
+    [dispatch, match.params.id]
+  )
+
+  const entriesState = useSelector(state => state.entry)
+  const loading = entriesState.loading
+  const entryState = entriesState.entry
+
+  useEffect(
+    () => {
+      if (entryState) {
+        setFormData({
+          author: loading || !entryState.author ? [] : entryState.author,
+          source: loading || !entryState.source ? '' : entryState.source,
+          _id: loading || !entryState._id ? '' : entryState._id,
+          pageFrom: loading || !entryState.pageFrom ? '' : entryState.pageFrom,
+          pageTo: loading || !entryState.pageTo ? '' : entryState.pageTo,
+          files: loading || !entryState.files ? [] : entryState.files,
+          entry: loading || !entryState.entry ? '' : entryState.entry,
+          index: loading || !entryState.index ? '' : entryState.index,
+          document: loading || !entryState.document ? '' : entryState.document,
+          resource: loading || !entryState.resource ? '' : entryState.resource,
+        })
+      }
+    },
+    [loading, entryState]
   )
 
   const [formData, setFormData] = useState(clearForm)
 
   const { source, pageFrom, pageTo, entry, resource } = formData
 
-  let newSources = sources
+  let sourceState = useSelector(state => state.source)
+  let newSources = sourceState.sources
 
   const sourcesList = newSources.map(s => (
     <option key={s._id} value={s._id} label={s.resource} />
@@ -46,20 +72,19 @@ const EntryForm = ({
 
   const onChange = e => {
     if (e.target.name === 'source') {
-      let a = sources.filter(s => s._id === e.target.value)
+      let a = newSources.filter(s => s._id === e.target.value)
       let newFormData = formData
-      newFormData.author = a[0].authors
+      newFormData.author = a[0] ? a[0].authors : []
 
       setFormData(newFormData)
     }
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
-
   const [renderedAuthors, setRenderedAuthors] = useState([])
 
   useEffect(
     () => {
-      if (formData.author.length > 0) {
+      if (formData.author.length !== renderedAuthors.length) {
         const list = formData.author.map(async id => {
           const res = await axios.get(`/api/authors/${id}`)
           return res.data
@@ -70,13 +95,13 @@ const EntryForm = ({
         })
       }
     },
-    [formData.author]
+    [formData.author, renderedAuthors.length]
   )
 
   const onSubmit = e => {
     formData.document = formData.entry
     e.preventDefault()
-    addEntry(formData)
+    dispatch(addEntry(formData))
     setFormData(clearForm)
   }
 
@@ -93,32 +118,37 @@ const EntryForm = ({
           onSubmit(e)
         }}
       >
-        <div className="form-group">
-          <select name="source" value={source} onChange={e => onChange(e)}>
-            <option value="0">* Select Existing Source</option>
-            {sourcesList}
-          </select>
-          <small className="form-text">source</small>
-        </div>
-        {renderedAuthors.length > 0 && (
+        {resource.length === 0 && (
           <div className="form-group">
-            {renderedAuthors}
-            <small className="form-text">authors</small>
+            <select name="source" value={source} onChange={e => onChange(e)}>
+              <option value="">
+                *{!source ? ' Select Existing Source' : ' New Source'}{' '}
+              </option>
+              {sourcesList}
+            </select>
+            <small className="form-text">source</small>
+            {renderedAuthors.length > 0 && (
+              <div className="form-group">
+                {renderedAuthors}
+                <small className="form-text">authors</small>
+              </div>
+            )}{' '}
           </div>
         )}
 
-        <div className="form-group">
-          <textarea
-            placeholder="add a new resource"
-            cols="30"
-            rows="5"
-            name="resource"
-            value={resource}
-            onChange={e => onChange(e)}
-          />
-          <small className="form-text">new source</small>
-        </div>
-
+        {!source && (
+          <div className="form-group">
+            <textarea
+              placeholder="or add a new resource"
+              cols="30"
+              rows="5"
+              name="resource"
+              value={resource}
+              onChange={e => onChange(e)}
+            />
+            <small className="form-text">add new source</small>
+          </div>
+        )}
         <div className="form-group">
           <input
             type="text"
@@ -153,24 +183,10 @@ const EntryForm = ({
           <small className="form-text">new entry</small>
         </div>
 
-        <input type="submit" className="btn btn-dark my-1" value="Submit" />
+        <input type="submit" className="btn btn-dark my-1" value="Update" />
       </form>
     </div>
   )
 }
 
-EntryForm.propTypes = {
-  addEntry: PropTypes.func.isRequired,
-  getAuthors: PropTypes.func.isRequired,
-  getSources: PropTypes.func.isRequired,
-}
-
-const mapStateToProps = state => ({
-  author: state.author,
-  source: state.source,
-})
-
-export default connect(
-  mapStateToProps,
-  { addEntry, getAuthors, getSources }
-)(EntryForm)
+export default EditEntry

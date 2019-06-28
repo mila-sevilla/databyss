@@ -16,7 +16,6 @@ const Entries = ({ getEntries, entry: { entries, loading } }) => {
     },
     [getEntries]
   )
-
   return loading ? (
     <Spinner />
   ) : (

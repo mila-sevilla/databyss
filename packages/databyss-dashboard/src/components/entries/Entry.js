@@ -6,14 +6,18 @@ import BackButton from './../buttons/BackButton'
 import Spinner from '../layout/Spinner'
 import SourceItem from './../sources/SourceItem'
 import AuthorItem from './../authors/AuthorItem'
-import { getEntry } from '../../actions/entry'
-import { getSource } from '../../actions/source'
+import { getEntry, clearEntry } from '../../actions/entry'
+import { getSource, clearSource } from '../../actions/source'
 
 const Entry = ({ match }) => {
   const dispatch = useDispatch()
   useEffect(
     () => {
       dispatch(getEntry(match.params.id))
+      return () => {
+        dispatch(clearEntry())
+        dispatch(clearSource())
+      }
     },
     [dispatch, match.params.id]
   )
@@ -35,8 +39,8 @@ const Entry = ({ match }) => {
 
   useEffect(
     () => {
-      if (entry) {
-        const authorList = entry.author.map(async id => {
+      if (source) {
+        const authorList = source.authors.map(async id => {
           const res = await axios.get(`/api/authors/${id}`)
           return res.data
         })
@@ -45,7 +49,7 @@ const Entry = ({ match }) => {
         )
       }
     },
-    [entry]
+    [source]
   )
 
   useEffect(
@@ -58,23 +62,26 @@ const Entry = ({ match }) => {
     [render.list]
   )
 
-  return loading || source === null ? (
+  return loading || entry === null ? (
     <Spinner />
   ) : (
     <Fragment>
       <BackButton />
       <div className="dash-buttons p-1">
-        <Link to={`/entries/edit/${source._id}`} className="btn btn-light">
+        <Link to={`/entries/edit/${entry._id}`} className="btn btn-light">
           <i className="fas fa-user-circle text-primary" /> Edit Entry
         </Link>
       </div>
 
       <h1 className="lead text-dark">Entry: </h1>
       <div className="post bg-white p-1 my-1">
-        <p>
-          page(s): {entry && entry.pageFrom}
-          {entry && entry.pageTo > 0 && '-' + entry.pageTo}
-        </p>
+        {entry &&
+          entry.pageFrom && (
+            <p>
+              page(s): {entry && entry.pageFrom}
+              {entry && entry.pageTo > 0 && '-' + entry.pageTo}
+            </p>
+          )}
         <p>{entry && entry.entry}</p>
       </div>
       <div className="m-2">

@@ -1,24 +1,51 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 
 const EntryItem = ({
   entry: { _id, entry, source, author, pageTo, pageFrom },
-}) => (
-  <div className='post bg-white p-1 my-1'>
-    <div>
-      <Link to={`/entries/${_id}`}>
-        <h4>{entry}</h4>
-      </Link>
+}) => {
+  const [sourceInfo, setSourceInfo] = useState({ authors: 0, resource: '' })
+  useEffect(
+    () => {
+      if (source) {
+        if (typeof source === 'string') {
+          axios.get(`/api/sources/${source}`).then(res => {
+            const data = res.data
+            setSourceInfo({
+              authors: data.authors.length,
+              resource: data.resource,
+            })
+          })
+        } else {
+          setSourceInfo({
+            authors: source.authors.length,
+            resource: source.resource,
+          })
+        }
+      }
+    },
+    [source]
+  )
+  return (
+    <div className="post bg-white p-1 my-1">
+      <div>
+        <Link to={`/entries/${_id}`}>
+          <h4>{entry}</h4>
+        </Link>
+      </div>
+      <div>
+        <p className="my-1">authors: {sourceInfo.authors}</p>
+        <p className="my-1">source: {sourceInfo.resource}</p>
+        {pageFrom && (
+          <p className="my-1">
+            Page(s): {pageFrom}
+            {pageTo > 0 && '-' + pageTo}
+          </p>
+        )}
+      </div>
     </div>
-    <div>
-      <p className='my-1'>authors: {author.length}</p>
-      <p className='my-1'>
-        Page(s): {pageFrom}
-        {pageTo > 0 && '-' + pageTo}
-      </p>
-      <p className='my-1'>{entry}</p>
-    </div>
-  </div>
-)
+  )
+}
 
 export default EntryItem

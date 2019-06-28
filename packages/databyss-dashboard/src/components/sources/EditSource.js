@@ -331,7 +331,7 @@ const EditSource = ({ match }) => {
           <small className="form-text">source web site</small>
         </div>
 
-        <input type="submit" className="btn btn-dark my-1" value="Submit" />
+        <input type="submit" className="btn btn-dark my-1" value="Update" />
       </form>
     </div>
   )

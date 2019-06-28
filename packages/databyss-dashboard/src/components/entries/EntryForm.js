@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { addEntry } from '../../actions/entry'
-import { getAuthors } from '../../actions/author'
-import { getSources } from '../../actions/source'
+import { addEntry, clearEntry } from '../../actions/entry'
+import { getAuthors, clearAuthor } from '../../actions/author'
+import { getSources, clearSource } from '../../actions/source'
 
 const clearForm = {
   author: [],
@@ -24,6 +24,11 @@ const EntryForm = () => {
     () => {
       dispatch(getAuthors())
       dispatch(getSources())
+      return () => {
+        dispatch(clearEntry())
+        dispatch(clearAuthor())
+        dispatch(clearSource())
+      }
     },
     [dispatch]
   )

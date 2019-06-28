@@ -33,6 +33,13 @@ export const getEntries = () => async dispatch => {
   }
 }
 
+export const clearEntry = () => dispatch => {
+  dispatch({
+    type: GET_ENTRY,
+    payload: null,
+  })
+}
+
 // Delete post
 export const deleteEntry = id => async dispatch => {
   try {

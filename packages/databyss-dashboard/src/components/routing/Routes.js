@@ -13,6 +13,7 @@ import Profile from '../profile/Profile'
 
 import Entries from '../entries/Entries'
 import Entry from '../entries/Entry'
+import EditEntry from '../entries/EditEntry'
 
 import Authors from '../authors/Authors'
 import Author from '../authors/Author'
@@ -39,8 +40,8 @@ const Routes = () => {
         <PrivateRoute exact path="/edit-profile" component={EditProfile} />
 
         <PrivateRoute exact path="/entries" component={Entries} />
-
         <PrivateRoute exact path="/entries/:id" component={Entry} />
+        <PrivateRoute exact path="/entries/edit/:id" component={EditEntry} />
 
         <PrivateRoute exact path="/authors" component={Authors} />
         <PrivateRoute exact path="/authors/:id" component={Author} />

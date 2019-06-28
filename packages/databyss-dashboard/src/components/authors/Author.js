@@ -7,7 +7,7 @@ import BackButton from './../buttons/BackButton'
 import EntryItem from './../entries/EntryItem'
 import SourceItem from './../sources/SourceItem'
 import Spinner from '../layout/Spinner'
-import { getAuthor } from '../../actions/author'
+import { getAuthor, clearAuthor } from '../../actions/author'
 
 const Author = ({ match }) => {
   const dispatch = useDispatch()
@@ -15,6 +15,9 @@ const Author = ({ match }) => {
   useEffect(
     () => {
       dispatch(getAuthor(match.params.id))
+      return () => {
+        dispatch(clearAuthor())
+      }
     },
     [dispatch, match.params.id]
   )

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import useReactRouter from 'use-react-router'
 
-import { addAuthor, getAuthor } from '../../actions/author'
+import { addAuthor, getAuthor, clearAuthor } from '../../actions/author'
 
 const clearForm = {
   firstName: '',
@@ -15,10 +15,12 @@ const clearForm = {
 const EditAuthor = ({ match }) => {
   const dispatch = useDispatch()
   const { history } = useReactRouter()
-
   useEffect(
     () => {
       dispatch(getAuthor(match.params.id))
+      return () => {
+        dispatch(clearAuthor())
+      }
     },
     [dispatch, match.params.id]
   )
@@ -29,13 +31,15 @@ const EditAuthor = ({ match }) => {
 
   useEffect(
     () => {
-      setFormData({
-        firstName: loading || !author.firstName ? '' : author.firstName,
-        lastName: loading || !author.lastName ? '' : author.lastName,
-        _id: loading || !author._id ? '' : author._id,
-        entries: loading || !author.entries ? '' : author.entries,
-        sources: loading || !author.sources ? '' : author.sources,
-      })
+      if (!loading && author) {
+        setFormData({
+          firstName: loading || !author.firstName ? '' : author.firstName,
+          lastName: loading || !author.lastName ? '' : author.lastName,
+          _id: loading || !author._id ? '' : author._id,
+          entries: loading || !author.entries ? '' : author.entries,
+          sources: loading || !author.sources ? '' : author.sources,
+        })
+      }
     },
     [loading, author]
   )
@@ -51,7 +55,7 @@ const EditAuthor = ({ match }) => {
     history.push(`/authors/${_id}`)
   }
 
-  return (
+  return !loading ? (
     <div className="post-form">
       <div className="bg-primary p">
         <h3>New Author</h3>
@@ -89,7 +93,7 @@ const EditAuthor = ({ match }) => {
         <input type="submit" className="btn btn-dark my-1" value="Submit" />
       </form>
     </div>
-  )
+  ) : null
 }
 
 export default EditAuthor

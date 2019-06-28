@@ -7,13 +7,16 @@ import BackButton from './../buttons/BackButton'
 import Spinner from '../layout/Spinner'
 import AuthorItem from './../authors/AuthorItem'
 import EntryItem from './../entries/EntryItem'
-import { getSource } from '../../actions/source'
+import { getSource, clearSource } from '../../actions/source'
 
 const Source = ({ match }) => {
   const dispatch = useDispatch()
   useEffect(
     () => {
-      dispatch(getSource(match.params.id))
+      setTimeout(() => dispatch(getSource(match.params.id)), 300)
+      return () => {
+        dispatch(clearSource())
+      }
     },
     [dispatch, match.params.id]
   )
@@ -32,7 +35,7 @@ const Source = ({ match }) => {
         Promise.all(authorsList).then(list => setAuthorList(list))
       }
     },
-    [source]
+    [source, loading]
   )
 
   useEffect(
@@ -45,7 +48,7 @@ const Source = ({ match }) => {
         Promise.all(entriesList).then(list => setEntryList(list))
       }
     },
-    [source]
+    [source, loading]
   )
 
   const [renderedList, setRenderedList] = useState({})
@@ -69,7 +72,6 @@ const Source = ({ match }) => {
     },
     [entryList]
   )
-
   return loading || source === null ? (
     <Spinner />
   ) : (
@@ -89,12 +91,16 @@ const Source = ({ match }) => {
 
       <div className="m-2">
         <h3>Authors</h3>
-        {renderedList.authors}
+        {authorList.length > 0
+          ? renderedList.authors
+          : 'no authors for this source'}
         <div className="profile-grid" />
       </div>
       <div className="m-2">
         <h3>Entries</h3>
-        {renderedList.entries}
+        {entryList.length > 0
+          ? renderedList.entries
+          : 'no entries for this source'}
       </div>
     </Fragment>
   )
