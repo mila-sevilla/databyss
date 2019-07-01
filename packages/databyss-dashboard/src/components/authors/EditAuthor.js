@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import useReactRouter from 'use-react-router'
-
+import _ from 'lodash'
 import { addAuthor, getAuthor, clearAuthor } from '../../actions/author'
 
 const clearForm = {
@@ -31,7 +31,7 @@ const EditAuthor = ({ match }) => {
 
   useEffect(
     () => {
-      if (!loading && author) {
+      if (!loading && _.isObject(author)) {
         setFormData({
           firstName: loading || !author.firstName ? '' : author.firstName,
           lastName: loading || !author.lastName ? '' : author.lastName,

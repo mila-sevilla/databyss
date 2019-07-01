@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import useReactRouter from 'use-react-router'
+import _ from 'lodash'
 import { getAuthors, addAuthor, clearAuthor } from '../../actions/author'
 import { addSource, getSource, clearSource } from '../../actions/source'
 
@@ -55,7 +56,7 @@ const EditSource = ({ match }) => {
 
   useEffect(
     () => {
-      if (source) {
+      if (_.isObject(source)) {
         setFormData({
           resource: loading || !source.resource ? '' : source.resource,
           abbreviation:
@@ -97,7 +98,7 @@ const EditSource = ({ match }) => {
 
   useEffect(
     () => {
-      if (author != null) {
+      if (_.isObject(author)) {
         setFormData(f => ({
           ...f,
           authors:
@@ -124,7 +125,7 @@ const EditSource = ({ match }) => {
         selected:
           !dataLoading &&
           r.selected.length !== formData.authors.length &&
-          authorState.authors.length > 0
+          _.isArray(authorState.authors)
             ? formData.authors.map((a, i) => {
                 const match = authorState.authors.find(b => b._id === a)
                 return (
@@ -154,12 +155,13 @@ const EditSource = ({ match }) => {
 
   useEffect(
     () => {
-      setRenderList(r => ({
-        ...r,
-        dropdown: authorList.map((a, i) => (
-          <option key={i} value={a._id} label={a.lastName} />
-        )),
-      }))
+      if (_.isArray(authorList))
+        setRenderList(r => ({
+          ...r,
+          dropdown: authorList.map((a, i) => (
+            <option key={i} value={a._id} label={a.lastName} />
+          )),
+        }))
     },
     [authorList, formData]
   )

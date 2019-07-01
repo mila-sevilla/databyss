@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import _ from 'lodash'
 
 const EntryItem = ({
   entry: { _id, entry, source, author, pageTo, pageFrom },
@@ -8,20 +9,24 @@ const EntryItem = ({
   const [sourceInfo, setSourceInfo] = useState({ authors: 0, resource: '' })
   useEffect(
     () => {
-      if (source) {
+      if (!_.isEmpty(source)) {
         if (typeof source === 'string') {
           axios.get(`/api/sources/${source}`).then(res => {
             const data = res.data
-            setSourceInfo({
-              authors: data.authors.length,
-              resource: data.resource,
-            })
+            if (data.authors) {
+              setSourceInfo({
+                authors: data.authors.length,
+                resource: data.resource,
+              })
+            }
           })
         } else {
-          setSourceInfo({
-            authors: source.authors.length,
-            resource: source.resource,
-          })
+          if (_.isArray(source.authors)) {
+            setSourceInfo({
+              authors: source.authors.length,
+              resource: source.resource,
+            })
+          }
         }
       }
     },

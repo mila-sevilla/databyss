@@ -1,5 +1,7 @@
 const express = require('express')
+const _ = require('lodash')
 const router = express.Router()
+
 const Source = require('../../models/Source')
 const Author = require('../../models/Author')
 
@@ -16,7 +18,7 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ errors: errors.array() })
     }
 */
-  const {
+  let {
     title,
     authors,
     abbreviation,
@@ -37,6 +39,7 @@ router.post('/', auth, async (req, res) => {
 
   // if new author add author and retrive ID
   if (authorFirstName || authorLastName) {
+    authors = authors ? authors : []
     const author = new Author({
       firstName: authorFirstName,
       lastName: authorLastName,
@@ -47,20 +50,19 @@ router.post('/', auth, async (req, res) => {
   }
 
   const sourceFields = {
-    title,
-    authors,
-    abbreviation,
-    city,
-    publishingCompany,
-    sourceType,
-    url,
-    files,
-    entries,
-    date,
+    title: title ? title : '',
+    authors: authors ? authors : [],
+    abbreviation: abbreviation ? abbreviation : '',
+    city: city ? city : '',
+    publishingCompany: publishingCompany ? publishingCompany : '',
+    sourceType: sourceType ? sourceType : '',
+    url: url ? url : '',
+    files: files ? files : '',
+    entries: entries ? entries : [],
+    date: date ? date : '',
     resource,
     user: req.user.id,
   }
-
   //if source exists update it and exit
   try {
     let source = await Source.findOne({ _id: _id })
@@ -72,14 +74,18 @@ router.post('/', auth, async (req, res) => {
       sourceFields._id = _id
       source = await Source.findOneAndUpdate(
         { _id: _id },
-        { $set: sourceFields }
-      ).then(() => {
-        if (authorPost) {
+        { $set: sourceFields },
+        { new: true }
+      ).then(response => {
+        if (!_.isEmpty(authorPost)) {
+          authors = authors ? authors : []
           appendSourceToAuthor({
             authors: authors,
             sourceId: _id.toString(),
           }).then(() => {
-            if (entries) {
+            console.log('there')
+            if (!_.isEmpty(entries)) {
+              entries = entries ? entries : []
               // if entry exists append the authorID to both entry and source
               appendEntryToAuthor({
                 entries: entries,
@@ -88,27 +94,31 @@ router.post('/', auth, async (req, res) => {
             }
           })
         }
+        return res.json(response)
       })
-      return res.json(source)
     } else {
       // if new source has been added
       const sources = new Source(sourceFields)
       const post = await sources.save()
 
       // if authors id exist append to source
-      if (authors.length > 0) {
-        appendSourceToAuthor({
-          authors: authors,
-          sourceId: post._id.toString(),
-        })
+      if (authors) {
+        if (authors.length > 0) {
+          appendSourceToAuthor({
+            authors: authors,
+            sourceId: post._id.toString(),
+          })
+        }
       }
 
       // if entry exists append the authorID to both entry and source
-      if (entries.length > 0) {
-        appendEntryToAuthor({
-          entries: entries,
-          authors: authors,
-        })
+      if (entries) {
+        if (entries.length > 0) {
+          appendEntryToAuthor({
+            entries: entries,
+            authors: authors,
+          })
+        }
       }
       res.json(post)
     }
@@ -152,30 +162,8 @@ router.get('/:id', auth, async (req, res) => {
 // @route    GET api/sources/
 // @desc     Get all sources
 // @access   Private
-router.get('/', auth, async (req, res) => {
-  try {
-    /*
-      INSERT ERROR HANDLER HERE
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
-    }
-*/
-    const source = await Source.find()
-    if (!source) {
-      return res.status(400).json({ msg: 'There are no sources' })
-    }
 
-    res.json(source)
-  } catch (err) {
-    console.error(err.message)
-    res.status(500).send('Server Error')
-  }
-})
-// @route    GET api/sources/
-// @desc     Get all sources
-// @access   public
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const source = await Source.find({ user: req.user.id })
     if (!source) {

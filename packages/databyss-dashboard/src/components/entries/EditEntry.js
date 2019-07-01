@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-
+import _ from 'lodash'
 import { useSelector, useDispatch } from 'react-redux'
 import { addEntry, getEntry, clearEntry } from '../../actions/entry'
 import { getAuthors, clearAuthor } from '../../actions/author'
@@ -41,7 +41,7 @@ const EditEntry = ({ match }) => {
 
   useEffect(
     () => {
-      if (entryState) {
+      if (_.isObject(entryState)) {
         setFormData({
           author: loading || !entryState.author ? [] : entryState.author,
           source: loading || !entryState.source ? '' : entryState.source,

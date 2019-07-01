@@ -26,41 +26,41 @@ const AuthorForms = () => {
   }
 
   return (
-    <div className='post-form'>
-      <div className='bg-primary p'>
+    <div className="post-form">
+      <div className="bg-primary p">
         <h3>New Author</h3>
       </div>
 
       <form
-        className='form my-1'
+        className="form my-1"
         onSubmit={e => {
           e.preventDefault()
           onSubmit(e)
         }}
       >
-        <div className='form-group'>
+        <div className="form-group">
           <input
-            type='text'
-            placeholder='First Name'
-            name='firstName'
+            type="text"
+            placeholder="First Name"
+            name="firstName"
             value={firstName}
             onChange={e => onChange(e)}
           />
-          <small className='form-text'>author's first name</small>
+          <small className="form-text">author's first name</small>
         </div>
 
-        <div className='form-group'>
+        <div className="form-group">
           <input
-            type='text'
-            placeholder='Last Name'
-            name='lastName'
+            type="text"
+            placeholder="Last Name"
+            name="lastName"
             value={lastName}
             onChange={e => onChange(e)}
           />
-          <small className='form-text'>author's last name</small>
+          <small className="form-text">author's last name</small>
         </div>
 
-        <input type='submit' className='btn btn-dark my-1' value='Submit' />
+        <input type="submit" className="btn btn-dark my-1" value="Submit" />
       </form>
     </div>
   )

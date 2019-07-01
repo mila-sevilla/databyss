@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux'
+import _ from 'lodash'
 import { Link } from 'react-router-dom'
-
 import BackButton from './../buttons/BackButton'
 import EntryItem from './../entries/EntryItem'
 import SourceItem from './../sources/SourceItem'
@@ -28,7 +28,7 @@ const Author = ({ match }) => {
 
   useEffect(
     () => {
-      if (author) {
+      if (_.isObject(author) && _.isArray(author.entries)) {
         const entryList = author.entries.map(async id => {
           const res = await axios.get(`/api/entries/${id}`)
           return res.data
@@ -41,7 +41,7 @@ const Author = ({ match }) => {
 
   useEffect(
     () => {
-      if (author) {
+      if (_.isObject(author) && _.isArray(author.sources)) {
         const sourceList = author.sources.map(async id => {
           const res = await axios.get(`/api/sources/${id}`)
           return res.data
@@ -66,7 +66,7 @@ const Author = ({ match }) => {
 
   useEffect(
     () => {
-      if (sources.length > 0) {
+      if (_.isArray(sources)) {
         let list = sources.map(s => <SourceItem key={s._id} source={s} />)
         setRender(r => ({ ...r, sources: list }))
       }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import _ from 'lodash'
 import { addSource } from '../../actions/source'
 import { getAuthors, addAuthor, clearAuthor } from '../../actions/author'
 
@@ -31,7 +32,6 @@ const AuthorButton = ({ match, hanldeClick }) => (
 
 const SourceForm = () => {
   const dispatch = useDispatch()
-
   useEffect(
     () => {
       setFormData({ ...clearForm, authors: [] })
@@ -56,7 +56,7 @@ const SourceForm = () => {
 
   useEffect(
     () => {
-      if (source) {
+      if (_.isObject(source)) {
         setFormData({
           resource: loading || !source.resource ? '' : source.resource,
           abbreviation:
@@ -97,7 +97,7 @@ const SourceForm = () => {
 
   useEffect(
     () => {
-      if (author != null) {
+      if (_.isObject(author)) {
         setFormData(f => ({
           ...f,
           authors:

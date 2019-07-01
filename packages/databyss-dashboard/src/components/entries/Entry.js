@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
+import _ from 'lodash'
 import { Link } from 'react-router-dom'
 import BackButton from './../buttons/BackButton'
 import Spinner from '../layout/Spinner'
@@ -28,7 +29,7 @@ const Entry = ({ match }) => {
 
   useEffect(
     () => {
-      if (entry) {
+      if (_.isObject(entry)) {
         dispatch(getSource(entry.source))
       }
     },
@@ -39,7 +40,7 @@ const Entry = ({ match }) => {
 
   useEffect(
     () => {
-      if (source) {
+      if (_.isObject(source) && _.isArray(source.authors)) {
         const authorList = source.authors.map(async id => {
           const res = await axios.get(`/api/authors/${id}`)
           return res.data
@@ -54,7 +55,7 @@ const Entry = ({ match }) => {
 
   useEffect(
     () => {
-      if (render.list) {
+      if (_.isArray(render.list)) {
         let list = render.list.map(a => <AuthorItem key={a._id} author={a} />)
         setRender(r => ({ ...r, authors: list }))
       }

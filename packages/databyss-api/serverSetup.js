@@ -6,7 +6,7 @@ const {
 
 async function globalSetup() {
   await setupDevServer({
-    command: 'yarn server',
+    command: 'yarn start',
     launchTimeout: 50000,
   })
   console.log('Server Started...')

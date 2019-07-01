@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
-
+import _ from 'lodash'
 import BackButton from './../buttons/BackButton'
 import Spinner from '../layout/Spinner'
 import AuthorItem from './../authors/AuthorItem'
@@ -40,7 +40,7 @@ const Source = ({ match }) => {
 
   useEffect(
     () => {
-      if (source) {
+      if (_.isObject(source) && _.isArray(source.entries)) {
         const entriesList = source.entries.map(async id => {
           const res = await axios.get(`/api/entries/${id}`)
           return res.data
@@ -55,20 +55,24 @@ const Source = ({ match }) => {
 
   useEffect(
     () => {
-      setRenderedList(r => ({
-        ...r,
-        authors: authorList.map(a => <AuthorItem key={a._id} author={a} />),
-      }))
+      if (_.isArray(authorList)) {
+        setRenderedList(r => ({
+          ...r,
+          authors: authorList.map(a => <AuthorItem key={a._id} author={a} />),
+        }))
+      }
     },
     [authorList]
   )
 
   useEffect(
     () => {
-      setRenderedList(r => ({
-        ...r,
-        entries: entryList.map(e => <EntryItem key={e._id} entry={e} />),
-      }))
+      if (_.isArray(entryList)) {
+        setRenderedList(r => ({
+          ...r,
+          entries: entryList.map(e => <EntryItem key={e._id} entry={e} />),
+        }))
+      }
     },
     [entryList]
   )
