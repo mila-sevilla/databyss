@@ -3,7 +3,6 @@ const router = express.Router()
 const Entry = require('../../models/Entry')
 const Author = require('../../models/Author')
 const Source = require('../../models/Source')
-
 const auth = require('../../middleware/auth')
 
 // @route    POST api/entry
@@ -27,28 +26,75 @@ router.post('/', auth, async (req, res) => {
       entry,
       index,
       resource,
+      firstName,
+      lastName,
       _id, // NEED TO ADD THIS PARAM TO FRONT END
     } = req.body
 
-    let sourcePost
     // If new source, create new Id
-    if (resource) {
-      const newSource = new Source({
-        resource,
+    if ((firstName || lastName) && !resource) {
+      // POST NEW AUTHOR
+      let authorPost
+      authorPost = new Author({
+        firstName: firstName,
+        lastName: lastName,
         user: req.user.id,
       })
-      sourcePost = await newSource.save()
-      source = sourcePost._id.toString()
+      authorPost = await authorPost.save()
+      author.push(authorPost._id.toString())
+    }
+
+    if (resource) {
+      let sourcePost
+      let authorId
+      if (firstName || lastName) {
+        let authorPost
+        // create new author
+        authorPost = new Author({
+          firstName: firstName,
+          lastName: lastName,
+          user: req.user.id,
+        })
+        authorPost = await authorPost.save()
+        authorId = authorPost._id.toString()
+        author.push(authorId)
+
+        // create new souce
+        const newSource = new Source({
+          resource,
+          user: req.user.id,
+          authors: author,
+        })
+        sourcePost = await newSource.save()
+        source = sourcePost._id.toString()
+
+        //Update author with new source id
+        authorPost = await Author.findOne({ _id: authorId })
+        authorPost.sources = authorPost.sources.concat(source)
+        authorPost = await Author.findOneAndUpdate(
+          { _id: authorId },
+          { $set: authorPost },
+          { new: true }
+        ).then(a => console.log(a))
+      } else {
+        // create new source with no author
+        const newSource = new Source({
+          resource,
+          user: req.user.id,
+        })
+        sourcePost = await newSource.save()
+        source = sourcePost._id.toString()
+      }
     }
 
     const entryFields = {
-      pageFrom,
-      source,
-      author,
-      pageTo,
-      files,
+      pageFrom: pageFrom ? pageFrom : '',
+      source: source ? source : '',
+      author: author ? author : [],
+      pageTo: pageTo ? pageTo : '',
+      files: files ? files : [],
       entry,
-      index,
+      index: index ? index : 0,
       user: req.user.id,
     }
 

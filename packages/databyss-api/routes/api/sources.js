@@ -1,10 +1,8 @@
 const express = require('express')
 const _ = require('lodash')
 const router = express.Router()
-
 const Source = require('../../models/Source')
 const Author = require('../../models/Author')
-
 const auth = require('../../middleware/auth')
 
 // @route    POST api/sources
@@ -70,6 +68,10 @@ router.post('/', auth, async (req, res) => {
       if (req.user.id.toString() !== source.user.toString()) {
         return res.status(401).json({ msg: 'This post is private' })
       }
+      // if new author has been added
+      if (_.isArray(source.authors)) {
+        appendSourceToAuthor({ authors, sourceId: _id })
+      }
 
       sourceFields._id = _id
       source = await Source.findOneAndUpdate(
@@ -83,7 +85,6 @@ router.post('/', auth, async (req, res) => {
             authors: authors,
             sourceId: _id.toString(),
           }).then(() => {
-            console.log('there')
             if (!_.isEmpty(entries)) {
               entries = entries ? entries : []
               // if entry exists append the authorID to both entry and source

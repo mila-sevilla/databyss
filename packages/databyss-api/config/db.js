@@ -1,11 +1,21 @@
 const mongoose = require('mongoose')
-const config = require('config')
+//const config = require('config')
+require('dotenv').config()
 
+/*
 let dbURI =
   process.env.NODE_ENV === 'test'
     ? config.get('mongoURI')
     : config.get('mongoURI')
 
+*/
+
+let dbURI =
+  process.env.NODE_ENV === 'test'
+    ? process.env.MONGO_URI_TEST
+    : process.env.MONGO_URI
+
+console.log(process.env)
 let dB = mongoose
 
 const connectDB = async () => {

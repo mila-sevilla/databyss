@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux'
 import { addEntry, clearEntry } from '../../actions/entry'
@@ -15,6 +15,8 @@ const clearForm = {
   index: 0,
   document: '',
   resource: '',
+  firstName: '',
+  lastName: '',
 }
 
 const EntryForm = () => {
@@ -27,6 +29,7 @@ const EntryForm = () => {
         dispatch(clearEntry())
         dispatch(clearAuthor())
         dispatch(clearSource())
+        setFormData(clearForm)
       }
     },
     [dispatch]
@@ -34,24 +37,57 @@ const EntryForm = () => {
 
   const [formData, setFormData] = useState(clearForm)
 
-  const { source, pageFrom, pageTo, entry, resource } = formData
+  const {
+    source,
+    pageFrom,
+    pageTo,
+    entry,
+    resource,
+    lastName,
+    firstName,
+    author,
+  } = formData
 
   let sourceState = useSelector(state => state.source)
   let newSources = sourceState.sources
 
-  const sourcesList = newSources.map(s => (
-    <option key={s._id} value={s._id} label={s.resource} />
-  ))
+  let authorState = useSelector(state => state.author)
+  let newAuthors = authorState.authors
+
+  const sourcesList =
+    author.length > 0
+      ? newSources
+          .filter(s => s.authors.indexOf(author[0]) > -1)
+          .map(s => <option key={s._id} value={s._id} label={s.resource} />)
+      : newSources.map(s => (
+          <option key={s._id} value={s._id} label={s.resource} />
+        ))
+
+  const authorsList = newAuthors
+    ? newAuthors.map(a => (
+        <option key={a._id} value={a._id} label={a.lastName} />
+      ))
+    : []
+
+  const [, updateState] = React.useState()
+  const forceUpdate = useCallback(() => updateState({}), [])
 
   const onChange = e => {
     if (e.target.name === 'source') {
       let a = newSources.filter(s => s._id === e.target.value)
       let newFormData = formData
       newFormData.author = a[0] ? a[0].authors : []
-
       setFormData(newFormData)
     }
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    if (e.target.name === 'author') {
+      let a = newAuthors.filter(a => a._id === e.target.value)
+      let newFormData = formData
+      newFormData.author = a[0] ? [a[0]._id] : []
+      setFormData(newFormData)
+      forceUpdate()
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
   }
   const [renderedAuthors, setRenderedAuthors] = useState([])
 
@@ -91,6 +127,55 @@ const EntryForm = () => {
           onSubmit(e)
         }}
       >
+        {firstName.length === 0 &&
+          lastName.length === 0 && (
+            <div className="form-group">
+              <select
+                name="author"
+                value={author[0]}
+                onChange={e => onChange(e)}
+              >
+                <option value="">
+                  *{!source ? ' Select Existing Author' : ' New Author'}{' '}
+                </option>
+                {authorsList}
+              </select>
+              <small className="form-text">author</small>
+              {renderedAuthors.length > 0 && (
+                <div className="form-group">
+                  {renderedAuthors}
+                  <small className="form-text">authors</small>
+                </div>
+              )}{' '}
+            </div>
+          )}
+
+        {author.length < 1 && (
+          <div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="First Name"
+                name="firstName"
+                value={firstName}
+                onChange={e => onChange(e)}
+              />
+              <small className="form-text">author's first name</small>
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Last Name"
+                name="lastName"
+                value={lastName}
+                onChange={e => onChange(e)}
+              />
+              <small className="form-text">author's last name</small>
+            </div>
+          </div>
+        )}
+
         {resource.length === 0 && (
           <div className="form-group">
             <select name="source" value={source} onChange={e => onChange(e)}>
@@ -100,12 +185,6 @@ const EntryForm = () => {
               {sourcesList}
             </select>
             <small className="form-text">source</small>
-            {renderedAuthors.length > 0 && (
-              <div className="form-group">
-                {renderedAuthors}
-                <small className="form-text">authors</small>
-              </div>
-            )}{' '}
           </div>
         )}
 

@@ -192,7 +192,7 @@ const EditSource = ({ match }) => {
   return (
     <div className="post-form">
       <div className="bg-primary p">
-        <h3>New Source</h3>
+        <h3>Edit Source</h3>
       </div>
 
       <form

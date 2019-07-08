@@ -17,6 +17,8 @@ app.use('/api/profile', require('./routes/api/profile'))
 app.use('/api/authors', require('./routes/api/authors'))
 app.use('/api/entries', require('./routes/api/entries'))
 app.use('/api/sources', require('./routes/api/sources'))
+app.use('/api/motifs', require('./routes/api/motifs'))
+
 app.use('/api/documents', require('./routes/api/documents'))
 
 app.get('/', (req, res) => {
