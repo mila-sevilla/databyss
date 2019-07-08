@@ -15,7 +15,7 @@ let dbURI =
     ? process.env.MONGO_URI_TEST
     : process.env.MONGO_URI
 
-console.log(process.env)
+console.log(process.env.NODE_ENV)
 let dB = mongoose
 
 const connectDB = async () => {

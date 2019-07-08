@@ -1,6 +1,10 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = 'https://thawing-mountain-34862.herokuapp.com'
+console.log(process.env)
+axios.defaults.baseURL =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5000'
+    : 'https://thawing-mountain-34862.herokuapp.com'
 
 const setAuthToken = token => {
   if (token) {

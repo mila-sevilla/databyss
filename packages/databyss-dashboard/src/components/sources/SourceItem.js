@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import { connect, useSelector } from 'react-redux'
 import { deleteSource } from '../../actions/source'
+import _ from 'lodash'
 
 const SourceItem = ({
   source: {
@@ -20,7 +21,7 @@ const SourceItem = ({
   },
 }) => {
   const { loading } = useSelector(state => state.source)
-
+  console.log(entries)
   return !loading ? (
     <div className="post bg-white p-1 my-1">
       <Link to={`/sources/${_id}`}>
@@ -36,7 +37,10 @@ const SourceItem = ({
         <p className="my-1">Publishing Company : {publishingCompany}</p>
         <p className="my-1">Source Type: {sourceType}</p>
         <p className="my-1">URL: {url}</p>
-        <p className="my-1">Total Entries: {entries.length}</p>
+        <p className="my-1">
+          Total Entries:{' '}
+          {_.isObject(entries) && _.isArray(entries.length) && entries.length}
+        </p>
       </div>
     </div>
   ) : null
