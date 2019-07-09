@@ -3228,29 +3228,6 @@ babel-preset-react-app@^8.0.0:
     babel-plugin-macros "2.5.1"
     babel-plugin-transform-react-remove-prop-types "0.4.24"
 
-babel-preset-react-app@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/babel-preset-react-app/-/babel-preset-react-app-9.0.0.tgz#703108142bc9dd7173bde6a1a0138a762abc76f9"
-  dependencies:
-    "@babel/core" "7.4.3"
-    "@babel/plugin-proposal-class-properties" "7.4.0"
-    "@babel/plugin-proposal-decorators" "7.4.0"
-    "@babel/plugin-proposal-object-rest-spread" "7.4.3"
-    "@babel/plugin-syntax-dynamic-import" "7.2.0"
-    "@babel/plugin-transform-classes" "7.4.3"
-    "@babel/plugin-transform-destructuring" "7.4.3"
-    "@babel/plugin-transform-flow-strip-types" "7.4.0"
-    "@babel/plugin-transform-react-constant-elements" "7.2.0"
-    "@babel/plugin-transform-react-display-name" "7.2.0"
-    "@babel/plugin-transform-runtime" "7.4.3"
-    "@babel/preset-env" "7.4.3"
-    "@babel/preset-react" "7.0.0"
-    "@babel/preset-typescript" "7.3.3"
-    "@babel/runtime" "7.4.3"
-    babel-plugin-dynamic-import-node "2.2.0"
-    babel-plugin-macros "2.5.1"
-    babel-plugin-transform-react-remove-prop-types "0.4.24"
-
 babel-preset-react@6.24.1, babel-preset-react@^6.24.1:
   version "6.24.1"
   resolved "https://registry.yarnpkg.com/babel-preset-react/-/babel-preset-react-6.24.1.tgz#ba69dfaea45fc3ec639b6a4ecea6e17702c91380"
@@ -5396,7 +5373,7 @@ eslint-config-prettier@^2.9.0:
   dependencies:
     get-stdin "^5.0.1"
 
-eslint-config-react-app@^4.0.0, eslint-config-react-app@^4.0.1:
+eslint-config-react-app@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/eslint-config-react-app/-/eslint-config-react-app-4.0.1.tgz#23fd0fd7ea89442ef1e733f66a7207674b23c8db"
   dependencies:
@@ -11682,7 +11659,7 @@ rc@^1.0.1, rc@^1.1.6, rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-app-polyfill@^1.0.0, react-app-polyfill@^1.0.1:
+react-app-polyfill@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-1.0.1.tgz#809a858e44f9564c7f4205e173076f90048274f1"
   dependencies:
@@ -11720,7 +11697,7 @@ react-dev-utils@^5.0.0, react-dev-utils@^5.0.1:
     strip-ansi "3.0.1"
     text-table "0.2.0"
 
-react-dev-utils@^9.0.0, react-dev-utils@^9.0.1:
+react-dev-utils@^9.0.0:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-9.0.1.tgz#5c03d85a0b2537d0c46af7165c24a7dfb274bef2"
   dependencies:
@@ -13926,7 +13903,7 @@ trough@^1.0.0:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/trough/-/trough-1.0.4.tgz#3b52b1f13924f460c3fbfd0df69b587dbcbc762e"
 
-ts-pnp@1.1.2, ts-pnp@^1.0.0:
+ts-pnp@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.1.2.tgz#be8e4bfce5d00f0f58e0666a82260c34a57af552"
 

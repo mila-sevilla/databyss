@@ -70,7 +70,9 @@ router.post('/', auth, async (req, res) => {
       }
       // if new author has been added
       if (_.isArray(source.authors)) {
-        appendSourceToAuthor({ authors, sourceId: _id })
+        if (_.isArray(authors)) {
+          appendSourceToAuthor({ authors, sourceId: _id })
+        }
       }
 
       sourceFields._id = _id
