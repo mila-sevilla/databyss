@@ -1,17 +1,15 @@
+import { createUser, createSourceNoAuthor } from './_helpers'
+
 const request = require('supertest')
 const app = require('./../app')
 const { globalSetup, globalTeardown } = require('./../serverSetup')
 const { dropDB } = require('./../config/db')
-
-// AUTH
-const email = 'email@company.com'
-const password = 'password'
-//let token
+// let token
 
 // RESOURCE
-const resource = 'A book made for testing'
-const editedResource = 'A book made for editing'
-const authorLastName = 'Best Selling'
+const RESOURCE = 'A book made for testing'
+const EDITED_RESOURCE = 'A book made for editing'
+const AUTHOR_LAST_NAME = 'Best Selling'
 
 beforeAll(async done => {
   await globalSetup()
@@ -19,101 +17,78 @@ beforeAll(async done => {
 })
 
 // CREATE ACCOUNT
-describe('Creates Account and logs user in to create new source', () => {
-  let token
-  let sourceNoAuthorId
-  let sourcesNoAuthor
-  let sourceWithAuthorId
-  let sourcesWithAuthor
-  beforeAll(done => {
-    request(app)
-      .post('/api/users')
-      .send({
-        name: 'joe',
-        password: password,
-        email: email,
-      })
-      .then(response => {
-        token = JSON.parse(response.text).token
-        done()
-      })
-  })
-  test('It should require Authorization', done => {
-    request(app)
-      .post('/api/sources')
-      .send({
-        resource: resource,
-      })
-      .then(response => {
-        expect(response.statusCode).toBe(401)
-        done()
-      })
+describe('Source', () => {
+  describe('Not authorized', () => {
+    test('Create should require Authorization', done => {
+      request(app)
+        .post('/api/sources')
+        .send({
+          resource: RESOURCE,
+        })
+        .then(response => {
+          expect(response.statusCode).toBe(401)
+          done()
+        })
+    })
   })
 
-  test('It should post new source with no author', done => {
-    request(app)
-      .post('/api/sources')
-      .set('x-auth-token', token)
-      .send({
-        resource: resource,
-      })
-      .then(response => {
-        sourceNoAuthorId = JSON.parse(response.text)._id
-        sourcesNoAuthor = [sourceNoAuthorId]
-        expect(response.statusCode).toBe(200)
-        done()
-      })
-  })
-  test('It should retreive source by ID with no author', done => {
-    request(app)
-      .get(`/api/sources/${sourceNoAuthorId}`)
-      .set('x-auth-token', token)
-      .then(response => {
-        const res = JSON.parse(response.text)
-        expect(res.resource).toBe(resource)
-        expect(res.authors.length).toBe(0)
-        done()
-      })
-  })
-  test('It should post new source with author', done => {
-    request(app)
-      .post('/api/sources')
-      .set('x-auth-token', token)
-      .send({
-        resource: resource,
-        authorLastName: authorLastName,
-      })
-      .then(response => {
-        sourceWithAuthorId = JSON.parse(response.text)._id
-        sourcesWithAuthor = [sourceWithAuthorId]
-        expect(response.statusCode).toBe(200)
-        done()
-      })
-  })
-  test('It should retreive source by ID with author', done => {
-    request(app)
-      .get(`/api/sources/${sourceWithAuthorId}`)
-      .set('x-auth-token', token)
-      .then(response => {
-        const res = JSON.parse(response.text)
-        expect(res.resource).toBe(resource)
-        expect(res.authors.length).toBeGreaterThan(0)
-        done()
-      })
-  })
-  test('It should edit a source by ID', done => {
-    request(app)
-      .post(`/api/sources/`)
-      .set('x-auth-token', token)
-      .send({
-        resource: editedResource,
-        _id: sourceWithAuthorId,
-      })
-      .then(response => {
-        const res = JSON.parse(response.text)
-        expect(res.resource).toBe(editedResource)
-        done()
-      })
+  describe('Authorized', () => {
+    let token
+    beforeAll(async () => {
+      token = await createUser()
+    })
+
+    test('It should post/get new source with no author', async () => {
+      const postResponse = await createSourceNoAuthor(token, RESOURCE)
+      const sourceNoAuthorId = JSON.parse(postResponse.text)._id
+      expect(postResponse.statusCode).toBe(200)
+
+      const getResponse = await request(app)
+        .get(`/api/sources/${sourceNoAuthorId}`)
+        .set('x-auth-token', token)
+      const res = JSON.parse(getResponse.text)
+      expect(res.resource).toBe(RESOURCE)
+      expect(res.authors.length).toBe(0)
+    })
+
+    test('It should post/get new source with author', async () => {
+      const postResponse = await request(app)
+        .post('/api/sources')
+        .set('x-auth-token', token)
+        .send({
+          resource: RESOURCE,
+          AUTHOR_LAST_NAME,
+        })
+      const sourceWithAuthorId = JSON.parse(postResponse.text)._id
+      expect(postResponse.statusCode).toBe(200)
+
+      const getResponse = await request(app)
+        .get(`/api/sources/${sourceWithAuthorId}`)
+        .set('x-auth-token', token)
+      const res = JSON.parse(getResponse.text)
+      expect(res.resource).toBe(RESOURCE)
+      expect(res.authors.length).toBeGreaterThan(0)
+    })
+
+    test('It should edit a source by ID', async () => {
+      const createResponse = await createSourceNoAuthor(token, RESOURCE)
+      const sourceNoAuthorId = JSON.parse(createResponse.text)._id
+
+      const editResponse = await request(app)
+        .post(`/api/sources/`)
+        .set('x-auth-token', token)
+        .send({
+          resource: EDITED_RESOURCE,
+          _id: sourceNoAuthorId,
+        })
+      expect(editResponse.statusCode).toBe(200)
+
+      const getResponse = await request(app)
+        .get(`/api/sources/${sourceNoAuthorId}`)
+        .set('x-auth-token', token)
+      const res = JSON.parse(getResponse.text)
+      expect(res.resource).toBe(EDITED_RESOURCE)
+    })
   })
 })
 
