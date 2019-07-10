@@ -2,8 +2,9 @@ const request = require('supertest')
 const app = require('./../app')
 
 // AUTH
-export const EMAIL = 'email@company.com'
-export const PASSWORD = 'password'
+const EMAIL = 'email@company.com'
+
+const PASSWORD = 'password'
 
 export async function createUser() {
   const response = await request(app)

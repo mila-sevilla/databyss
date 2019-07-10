@@ -4,6 +4,7 @@ const Entry = require('../../models/Entry')
 const Author = require('../../models/Author')
 const Source = require('../../models/Source')
 const auth = require('../../middleware/auth')
+const _ = require('lodash')
 
 // @route    POST api/entry
 // @desc     new Entry
@@ -75,15 +76,21 @@ router.post('/', auth, async (req, res) => {
           { _id: authorId },
           { $set: authorPost },
           { new: true }
-        ).then(a => console.log(a))
+        )
       } else {
-        // create new source with no author
+        // create new source with or without existing author
         const newSource = new Source({
           resource,
+          authors: author ? author : [],
           user: req.user.id,
         })
         sourcePost = await newSource.save()
         source = sourcePost._id.toString()
+
+        // check to see if author exists
+        if (_.isArray(author)) {
+          appendAuthorToSource({ authors: author, sourceId: source })
+        }
       }
     }
 
@@ -218,6 +225,29 @@ const appendEntryToAuthors = ({ authors, entryId }) => {
         if (list.indexOf(entryId) > -1) return
         list.push(entryId)
         newInput.entries = list
+        author = await Author.findOneAndUpdate(
+          { _id: a },
+          { $set: newInput },
+          { new: true }
+        ).catch(err => console.log(err))
+      }
+    }
+  })
+  return Promise.all(promises)
+}
+
+const appendAuthorToSource = ({ sourceId, authors }) => {
+  const promises = authors.map(async a => {
+    if (a) {
+      let author = await Author.findOne({
+        _id: a,
+      }).catch(err => console.log(err))
+      if (author) {
+        let newInput = author
+        let list = newInput.sources
+        if (list.indexOf(sourceId) > -1) return
+        list.push(sourceId)
+        newInput.sources = list
         author = await Author.findOneAndUpdate(
           { _id: a },
           { $set: newInput },
