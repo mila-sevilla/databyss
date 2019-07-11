@@ -1,10 +1,11 @@
 import axios from 'axios'
 
 export const entryParser = ({ entries, source, author }) => {
+  console.log(source)
   const res = getEntriesList(entries).then(e => {
     return {
       title: source.resource,
-      display: e.abbreviation ? e.abbreviation : 'ABV',
+      display: source.abbreviation ? source.abbreviation : 'ABV',
       locations: e.map(l => {
         // console.log(l.pageFrom.toString())
         return {
