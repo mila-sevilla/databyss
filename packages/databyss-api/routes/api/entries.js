@@ -5,6 +5,16 @@ const Author = require('../../models/Author')
 const Source = require('../../models/Source')
 const auth = require('../../middleware/auth')
 const _ = require('lodash')
+const m = require('./helpers/entriesHelper')
+const {
+  appendEntryToSource,
+  appendEntryToAuthors,
+  appendAuthorToSource,
+  appendEntryToAuthorList,
+  appendEntriesToSource,
+  addAuthorId,
+  addSourceId,
+} = m
 
 // @route    POST api/entry
 // @desc     new Entry
@@ -168,8 +178,11 @@ router.get('/:id', auth, async (req, res) => {
     if (!entry) {
       return res.status(400).json({ msg: 'There is no entry for this id' })
     }
-    if (req.user.id.toString() !== entry.user.toString()) {
-      return res.status(401).json({ msg: 'This post is private' })
+    //console.log(entry)
+    if (!entry.default) {
+      if (req.user.id.toString() !== entry.user.toString()) {
+        return res.status(401).json({ msg: 'This post is private' })
+      }
     }
 
     res.json(entry)
@@ -183,10 +196,21 @@ router.get('/:id', auth, async (req, res) => {
 // @access   Private
 router.get('/', auth, async (req, res) => {
   try {
-    const entry = await Entry.find({ user: req.user.id })
+    const entry = await Entry.find()
+      .or([{ user: req.user.id }, { default: true }])
+      .limit(10)
+
+    // const entry = await Entry.find({ user: req.user.id })
     if (!entry) {
       return res.status(400).json({ msg: 'There are no entries' })
     }
+
+    // to migrate run command in order, one at a time
+    // only run each function once
+    // appendEntryToAuthorList(entry)
+    //appendEntriesToSource(entry)
+    //addAuthorId(entry)
+    //addSourceId(entry)
 
     res.json(entry)
   } catch (err) {
@@ -194,69 +218,5 @@ router.get('/', auth, async (req, res) => {
     res.status(500).send('Server Error')
   }
 })
-
-const appendEntryToSource = async ({ sourceId, entryId }) => {
-  let source = await Source.findOne({
-    _id: sourceId,
-  }).catch(err => console.log(err))
-  if (source) {
-    let newInput = source
-    let newEntriesList = newInput.entries
-    if (newEntriesList.indexOf(entryId) > -1) return
-    newEntriesList.push(entryId)
-    newInput.entries = newEntriesList
-    source = await Source.findOneAndUpdate(
-      { _id: sourceId },
-      { $set: newInput },
-      { new: true }
-    ).catch(err => console.log(err))
-  }
-}
-
-const appendEntryToAuthors = ({ authors, entryId }) => {
-  const promises = authors.map(async a => {
-    if (a) {
-      let author = await Author.findOne({
-        _id: a,
-      }).catch(err => console.log(err))
-      if (author) {
-        let newInput = author
-        let list = newInput.entries
-        if (list.indexOf(entryId) > -1) return
-        list.push(entryId)
-        newInput.entries = list
-        author = await Author.findOneAndUpdate(
-          { _id: a },
-          { $set: newInput },
-          { new: true }
-        ).catch(err => console.log(err))
-      }
-    }
-  })
-  return Promise.all(promises)
-}
-
-const appendAuthorToSource = ({ sourceId, authors }) => {
-  const promises = authors.map(async a => {
-    if (a) {
-      let author = await Author.findOne({
-        _id: a,
-      }).catch(err => console.log(err))
-      if (author) {
-        let newInput = author
-        let list = newInput.sources
-        if (list.indexOf(sourceId) > -1) return
-        list.push(sourceId)
-        newInput.sources = list
-        author = await Author.findOneAndUpdate(
-          { _id: a },
-          { $set: newInput },
-          { new: true }
-        ).catch(err => console.log(err))
-      }
-    }
-  })
-  return Promise.all(promises)
-}
 
 module.exports = router

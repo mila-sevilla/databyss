@@ -21,7 +21,8 @@ const defaultLandingProps = {
   }
 }
 
-const SourceById = ({ id }) => {
+const SourceById = ({ match }) => {
+  const id = match.params.id
   const dispatch = useDispatch()
   const [landingProps, setLandingProps] = useState(defaultLandingProps)
 

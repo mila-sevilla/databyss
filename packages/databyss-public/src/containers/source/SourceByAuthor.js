@@ -13,7 +13,7 @@ const defaultLandingProps = {
   contentTitle: 'content title'
 }
 
-const SourceByAuthor = ({ history, authorId }) => {
+const SourceByAuthor = ({ history, authorId, match }) => {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(getSources())
@@ -25,9 +25,9 @@ const SourceByAuthor = ({ history, authorId }) => {
   const [landingProps, setLandingProps] = useState(defaultLandingProps)
 
   useEffect(() => {
-    if (sources.length > 0) {
+    if (sources.length > 0 && match.params.id) {
       // add filter method here
-      dispatch(getAuthor(sources[0].authors))
+      dispatch(getAuthor(match.params.id))
     }
   }, [sources])
 
@@ -43,12 +43,12 @@ const SourceByAuthor = ({ history, authorId }) => {
   }, [author, sources])
 
   useEffect(() => {
-    if (sources.length > 0) {
-      entriesParser(sources).then(s => {
+    if (sources.length > 0 && author) {
+      entriesParser(author.sources).then(s => {
         const list = (
           <Landing
             {...landingProps}
-            contentTitle={`Databyss includes ${s.length} entries by ${s[0].author.lastName}`}>
+            contentTitle={`Databyss includes ${s.length} entries by `}>
             <LandingSources
               sources={s}
               renderSource={source => {

@@ -1,0 +1,17 @@
+[
+{ "_id" : { "$oid" : "5b0efb34889a46141f199136" }, "id" : "DD", "lastName" : "Derrida", "firstName" : "Jacques" },
+{ "_id" : { "$oid" : "5b0efb34889a46141f199137" }, "id" : "KA", "lastName" : "Kant", "firstName" : "Immanuel" },
+{ "_id" : { "$oid" : "5b0efb34889a46141f199138" }, "id" : "HDG", "lastName" : "Heidegger", "firstName" : "Martin" },
+{ "_id" : { "$oid" : "5b0efb34889a46141f199139" }, "id" : "NZ", "lastName" : "Nietzsche", "firstName" : "Friedrich" },
+{ "_id" : { "$oid" : "5b27966d93aae8110dc7c104" }, "id" : "FR", "lastName" : "Freud", "firstName" : "Sigmund" },
+{ "_id" : { "$oid" : "5b27b124d165fa12ace1e61e" }, "id" : "RN", "lastName" : "Ronell", "firstName" : "Avital" },
+{ "_id" : { "$oid" : "5b27b2abd165fa12ace1e620" }, "id" : "KKGD", "lastName" : "Kierkegaard", "firstName" : "Søren" },
+{ "_id" : { "$oid" : "5b27b439d165fa12ace1e622" }, "id" : "AUG", "lastName" : "Augustine", "firstName" : "Saint" },
+{ "_id" : { "$oid" : "5b4635815ad7c949aea59c35" }, "id" : "LAC", "lastName" : "Lacan", "firstName" : "Jacques" },
+{ "_id" : { "$oid" : "5b4775354621d392f1a228ec" }, "id" : "MRX", "lastName" : "Marx", "firstName" : "Karl" },
+{ "_id" : { "$oid" : "5b7dae65f936957cdb947eee" }, "id" : "PL", "lastName" : "Plato", "firstName" : "" },
+{ "_id" : { "$oid" : "5b82f1f95e6709b585959254" }, "id" : "HUSS", "lastName" : "Husserl", "firstName" : "Edmund" },
+{ "_id" : { "$oid" : "5b93e2559206cef2df2d5492" }, "id" : "ARSTL", "lastName" : "Aristotle", "firstName" : "" },
+{ "_id" : { "$oid" : "5bb3ebfcb365c6a96a70a8c0" }, "id" : "JOY", "lastName" : "Joyce", "firstName" : "James" },
+{ "_id" : { "$oid" : "5c5cb42db054333a4ce0ecfb" }, "id" : "SCH", "lastName" : "Schelling", "firstName" : "F.W.J." }
+]

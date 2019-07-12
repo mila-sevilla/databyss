@@ -3,6 +3,9 @@ import { Route, Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import Home from '../home'
 import Source from '../source'
+import SourceByAuthor from '../source/SourceByAuthor'
+import SourceById from '../source/SourceById'
+
 import About from '../about'
 import { loadUser, login } from './../../actions/auth'
 import setAuthToken from './../../utils/setAuthToken'
@@ -27,7 +30,9 @@ const App = () => {
 
       <main>
         <Route exact path="/" component={Home} />
-        <Route path="/source/:id?" component={Source} />
+        <Route exact path="/source" component={Source} />
+        <Route exact path="/source/author/:id" component={SourceByAuthor} />
+        <Route exact path="/source/:id" component={SourceById} />
         <Route exact path="/about-us" component={About} />
       </main>
     </div>

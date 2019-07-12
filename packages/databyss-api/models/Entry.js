@@ -15,6 +15,19 @@ const EntrySchema = new mongoose.Schema({
   source: {
     type: String,
   },
+  linkedContent: {
+    type: String,
+  },
+  authorId: {
+    type: String,
+  },
+  sourceId: {
+    type: String,
+  },
+  default: {
+    type: Boolean,
+    default: false,
+  },
   /*
   locationType: {
     string default: other

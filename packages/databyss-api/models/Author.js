@@ -19,6 +19,10 @@ const AuthorSchema = new mongoose.Schema({
       type: String,
     },
   ],
+  default: {
+    type: Boolean,
+    default: false,
+  },
   sources: [
     {
       type: String,

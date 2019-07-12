@@ -151,8 +151,10 @@ router.get('/:id', auth, async (req, res) => {
     if (!sources) {
       return res.status(400).json({ msg: 'There is no source for this id' })
     }
-    if (req.user.id.toString() !== sources.user.toString()) {
-      return res.status(401).json({ msg: 'This post is private' })
+    if (!sources.default) {
+      if (req.user.id.toString() !== sources.user.toString()) {
+        return res.status(401).json({ msg: 'This post is private' })
+      }
     }
 
     res.json(sources)
@@ -168,10 +170,15 @@ router.get('/:id', auth, async (req, res) => {
 
 router.get('/', auth, async (req, res) => {
   try {
-    const source = await Source.find({ user: req.user.id })
+    const source = await Source.find()
+      .or([{ user: req.user.id }, { default: true }])
+      .limit(10)
     if (!source) {
       return res.status(400).json({ msg: 'There are no sources' })
     }
+
+    // appendSourceToAuthorList(source)
+    //addAuthorId(source)
 
     res.json(source)
   } catch (err) {
@@ -226,4 +233,75 @@ const appendEntryToAuthor = ({ entries, authors }) => {
   return Promise.all(promises)
 }
 
+const addAuthorId = sources => {
+  const promises = sources.map(async s => {
+    if (s) {
+      let author = await Author.findOne({
+        id: s.author,
+      }).catch(err => console.log(err))
+      if (author) {
+        let newSource = s
+        newSource.authors = [author._id]
+        let source = await Source.findOneAndUpdate(
+          { _id: s._id },
+          { $set: newSource },
+          { new: true }
+        )
+        console.log(source)
+        /*
+        let newInput = author
+        let list = newInput.entries
+        list = list.concat(entries.filter(e => list.indexOf(e) < 0))
+        // figure out how to remove duplicates
+        newInput.entries = list
+        author = await Author.findOneAndUpdate(
+          { _id: a },
+          { $set: newInput },
+          { new: true }
+        ).catch(err => console.log(err))
+        */
+      }
+    }
+  })
+  return Promise.all(promises)
+}
+
 module.exports = router
+
+const appendSourceToAuthorList = source => {
+  const newSource = source.reduce((acc, s) => {
+    const obj = {
+      author: s.author,
+      id: [s._id],
+    }
+    if (acc.length > 0) {
+      if (acc.some(e => e.author === s.author)) {
+        const index = acc.findIndex(a => a.author === s.author)
+        acc[index].id = acc[index].id.concat(s._id)
+        return acc
+      } else {
+        return acc.concat(obj)
+      }
+    }
+    return [obj]
+  }, [])
+  newSource.map(a => {
+    if (a) {
+      Author.findOne({
+        id: a.author,
+      })
+        .then(author => {
+          if (author) {
+            let newInput = author
+            newInput.sources = a.id
+            Author.findOneAndUpdate(
+              { id: a.author },
+              { $set: newInput },
+              { new: true }
+            ).catch(err => console.log(err))
+          }
+        })
+        .catch(err => console.log(err))
+    }
+  })
+}

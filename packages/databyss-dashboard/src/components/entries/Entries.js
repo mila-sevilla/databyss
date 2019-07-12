@@ -24,11 +24,15 @@ const Entries = ({ getEntries, entry: { entries, loading } }) => {
       <p className="lead">
         <i className="fas fa-user" /> write a new entry
       </p>
+      {/*
       <EntryForm />
+
+
 
       <div className="posts">
         {entries.map(entry => <EntryItem key={entry._id} entry={entry} />)}
       </div>
+*/}
     </Fragment>
   )
 }

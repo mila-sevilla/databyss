@@ -12,6 +12,12 @@ const SourceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  citations: {
+    type: String,
+  },
+  author: {
+    type: String,
+  },
   authors: [
     {
       type: String,
@@ -22,6 +28,10 @@ const SourceSchema = new mongoose.Schema({
   },
   date: {
     type: String,
+  },
+  default: {
+    type: Boolean,
+    default: false,
   },
   city: {
     type: String,
