@@ -32,13 +32,15 @@ export const authorParser = authors => {
   return entries
 }
 
-export const entriesParser = sources => {
+export const entriesParser = ({ sources }) => {
   const entries = sources.map(async s => {
     let source = await axios.get(`/api/sources/${s}`)
     source = source.data
+    let author = await axios.get(`/api/authors/${source.authors[0]}`)
+    author = author.data.lastName
     return {
       abv: source.abbreviation,
-      //   author: author.data,
+      author: author,
       entryCount: source.entries.length,
       title: source.resource,
       id: source._id

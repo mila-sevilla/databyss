@@ -247,7 +247,6 @@ const addAuthorId = sources => {
           { $set: newSource },
           { new: true }
         )
-        console.log(source)
         /*
         let newInput = author
         let list = newInput.entries

@@ -44,11 +44,11 @@ const SourceByAuthor = ({ history, authorId, match }) => {
 
   useEffect(() => {
     if (sources.length > 0 && author) {
-      entriesParser(author.sources).then(s => {
+      entriesParser({ sources: author.sources }).then(s => {
         const list = (
           <Landing
             {...landingProps}
-            contentTitle={`Databyss includes ${s.length} entries by `}>
+            contentTitle={`Databyss includes ${s.length} entries by ${s[0].author}`}>
             <LandingSources
               sources={s}
               renderSource={source => {

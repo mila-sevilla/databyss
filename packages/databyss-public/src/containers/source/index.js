@@ -23,10 +23,15 @@ const Source = ({ match, history }) => {
   useEffect(() => {
     if (authors.length > 0) {
       const parsedAuthors = authorParser(authors)
+
+      const reducer = (accumulator, currentValue) => {
+        return accumulator + parseInt(currentValue.sourceCount)
+      }
+      let total = parsedAuthors.reduce(reducer, 0)
       const list = (
         <Landing
           {...landingProps}
-          contentTitle="Databyss includes 210 entries of the motif “ABYSS” from 44 sources by Jacques Derrida">
+          contentTitle={`Databyss includes ${parsedAuthors.length} authors with ${total} sources`}>
           <LandingSources
             sources={parsedAuthors}
             renderSource={author => {
