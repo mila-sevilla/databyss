@@ -16,7 +16,7 @@
     "react-scripts": "2.1.8"
   },
   "dependencies": {
-    "@databyss-org/ui": "^1.0.11",
+    "@databyss-org/ui": "^1.0.10",
     "axios": "^0.19.0",
     "connected-react-router": "6.5.0",
     "lodash": "^4.17.14",

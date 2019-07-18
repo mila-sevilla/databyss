@@ -1221,7 +1221,7 @@
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-9.0.1.tgz#c27b391d8457d1e893f1eddeaf5e5412d12ffbb5"
 
-"@databyss-org/ui@^1.0.11":
+"@databyss-org/ui@^1.0.10":
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/@databyss-org/ui/-/ui-1.0.10.tgz#10a5dd4f2ad93a37d56b0255ed61cffecd98c61b"
   dependencies:
