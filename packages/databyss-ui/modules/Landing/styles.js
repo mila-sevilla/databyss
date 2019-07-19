@@ -31,7 +31,7 @@ const style = (theme = defaultTheme) => ({
     left: '0px',
     width: '100%',
     position: 'fixed',
-    paddingTop: '20px',
+    paddingTop: '30px',
     paddingRight: '20px',
     ...macros.mobile({
       paddingRight: '0px',
@@ -43,9 +43,10 @@ const style = (theme = defaultTheme) => ({
   stickyContent: {
     borderBottom: '1px solid #D6D6D6',
     ...macros.mobile({
-      paddingRight: '52px',
+      paddingRight: '18px',
       paddingLeft: '18px',
       borderBottom: 0,
+      width: '100%',
     }),
     maxWidth: '550px',
   },
