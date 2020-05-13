@@ -52,7 +52,7 @@ const Search = ({ onClick }) => {
         position="relative"
         flex={1}
         borderVariant="thinLight"
-        p="small"
+        p="em"
       >
         <Grid singleRow alignItems="center" columnGap="none">
           <Icon sizeVariant="small" color="text.3" pr="small">
@@ -69,7 +69,7 @@ const Search = ({ onClick }) => {
               }
             }}
           />
-          <View position="absolute" right="small">
+          <View position="absolute" right="em">
             <BaseControl onClick={clear}>
               <Icon sizeVariant="tiny" color="text.3">
                 <CloseSvg />
